@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-warning text-dark py-3">
+            <h5 class="mb-0 fw-bold"><i class="bi bi-file-earmark-text me-2"></i>Nueva Solicitud de Orden de Pago</h5>
+            <small>Sede: <strong>{{ request.user.sede.nombre|default:"Central El Abanico" }}</strong></small>
+        </div>
+        <div class="card-body p-4">
+            <div class="alert alert-info py-2 small mb-4">
+                <i class="bi bi-info-circle me-1"></i>
+                <strong>Flujo de Aprobación Jerárquico:</strong> Las órdenes con montos menores a $1,000.00 USD requieren aprobación del Supervisor de Sede. Montos a partir de $1,000.00 USD escalan automáticamente al Director General.
+            </div>
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label class="form-label fw-semibold">Beneficiario / Proveedor</label>
+                        {{ form.beneficiario }}
+                        {{ form.beneficiario.errors }}
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Monto Solicitado (USD)</label>
+                        {{ form.monto }}
+                        {{ form.monto.errors }}
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Concepto / Justificación del Gasto</label>
+                        {{ form.concepto }}
+                        {{ form.concepto.errors }}
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex justify-content-end gap-2">
+                    <a href="{% url 'finanzas:lista_ordenes_pago' %}" class="btn btn-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-warning text-dark fw-bold px-4">Enviar a Flujo de Aprobación</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

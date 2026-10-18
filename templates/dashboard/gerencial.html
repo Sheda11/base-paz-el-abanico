@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid px-4 py-3">
+    <div class="row align-items-center mb-4">
+        <div class="col-md-6">
+            <h2 class="h3 fw-bold text-gray-800">Panel de Control Gerencial y Auditoría</h2>
+            <p class="text-muted mb-0">Gran Base de Paz "El Abanico" y Sedes Anexas</p>
+        </div>
+        <div class="col-md-6">
+            <div class="d-flex justify-content-md-end gap-2 mt-3 mt-md-0">
+                <select id="filtro-sede" class="form-select w-auto">
+                    {% if puede_ver_consolidado %}
+                        <option value="CONSOLIDADO" selected>Modo Consolidado (Todas las Sedes)</option>
+                    {% endif %}
+                    {% for sede in sedes_disponibles %}
+                        <option value="{{ sede.id }}">{{ sede.nombre }}</option>
+                    {% endfor %}
+                </select>
+                <input type="date" id="filtro-fecha-inicio" class="form-control w-auto">
+                <input type="date" id="filtro-fecha-fin" class="form-control w-auto">
+                <button id="btn-actualizar" class="btn btn-primary px-3">Filtrar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm border-start border-success border-4 h-100">
+                <div class="card-body">
+                    <span class="text-muted text-uppercase fw-semibold small">Ingresos Totales</span>
+                    <h3 class="fw-bold text-success my-2" id="kpi-ingresos">$0.00</h3>
+                    <small class="text-muted">Período seleccionado</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm border-start border-danger border-4 h-100">
+                <div class="card-body">
+                    <span class="text-muted text-uppercase fw-semibold small">Egresos Totales</span>
+                    <h3 class="fw-bold text-danger my-2" id="kpi-egresos">$0.00</h3>
+                    <small class="text-muted">Gastos y órdenes de pago</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm border-start border-primary border-4 h-100">
+                <div class="card-body">
+                    <span class="text-muted text-uppercase fw-semibold small">Saldo Actual en Bóveda</span>
+                    <h3 class="fw-bold text-primary my-2" id="kpi-saldo">$0.00</h3>
+                    <small class="text-muted">Balance centralizado</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm border-start border-warning border-4 h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <span class="text-warning-emphasis text-uppercase fw-bold small">Deudores Morosos</span>
+                        <span class="badge bg-warning text-dark" id="badge-cuentas-vencidas">0 cuentas</span>
+                    </div>
+                    <h3 class="fw-bold text-warning-emphasis my-2" id="kpi-morosos-count">0</h3>
+                    <small class="text-muted">Deuda vencida: <strong id="kpi-morosos-deuda" class="text-danger">$0.00</strong></small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white py-3">
+                    <h6 class="mb-0 fw-bold">Flujo Financiero (Ingresos vs Egresos)</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="graficoFinanzas" height="120"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white py-3">
+                    <h6 class="mb-0 fw-bold">Consolidado Territorial</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0" id="tabla-sedes">
+                            <thead class="table-light small">
+                                <tr>
+                                    <th>Sede</th>
+                                    <th>Saldo Bóveda</th>
+                                    <th>Morosos</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    let chartInstance = null;
+
+    async function cargarDashboard() {
+        const sedeId = document.getElementById('filtro-sede') ? document.getElementById('filtro-sede').value : '';
+        const fInicio = document.getElementById('filtro-fecha-inicio').value;
+        const fFin = document.getElementById('filtro-fecha-fin').value;
+
+        const params = new URLSearchParams({
+            sede_id: sedeId,
+            fecha_inicio: fInicio,
+            fecha_fin: fFin
+        });
+
+        try {
+            const resp = await fetch(`/api/data/?${params.toString()}`);
+            const data = await resp.json();
+
+            document.getElementById('kpi-ingresos').innerText = `$${data.kpis.total_ingresos.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+            document.getElementById('kpi-egresos').innerText = `$${data.kpis.total_egresos.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+            document.getElementById('kpi-saldo').innerText = `$${data.kpis.saldo_boveda_total.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+            document.getElementById('kpi-morosos-count').innerText = data.kpis.deudores_morosos_count;
+            document.getElementById('badge-cuentas-vencidas').innerText = `${data.kpis.cuentas_morosas_count} obligaciones`;
+            document.getElementById('kpi-morosos-deuda').innerText = `$${data.kpis.deuda_morosa_total.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+
+            const tbody = document.querySelector('#tabla-sedes tbody');
+            tbody.innerHTML = '';
+            if (data.desglose_sedes.length > 0) {
+                data.desglose_sedes.forEach(s => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><span class="fw-semibold">${s.nombre}</span><br><small class="text-muted">${s.tipo}</small></td>
+                            <td class="text-primary fw-bold">$${parseFloat(s.saldo_actual).toFixed(2)}</td>
+                            <td><span class="badge bg-warning text-dark">${s.morosos_sede}</span></td>
+                        </tr>
+                    `;
+                });
+            } else {
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted py-3">Modo individual de sede activo</td></tr>';
+            }
+
+            actualizarGrafico(data.kpis.total_ingresos, data.kpis.total_egresos);
+
+        } catch (error) {
+            console.error("Error al cargar métricas del dashboard:", error);
+        }
+    }
+
+    function actualizarGrafico(ingresos, egresos) {
+        const ctx = document.getElementById('graficoFinanzas').getContext('2d');
+        if (chartInstance) {
+            chartInstance.destroy();
+        }
+        chartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Ingresos Diarios', 'Egresos / Gastos'],
+                datasets: [{
+                    label: 'Monto Total en USD',
+                    data: [ingresos, egresos],
+                    backgroundColor: ['#198754', '#dc3545'],
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+    }
+
+    document.getElementById('btn-actualizar').addEventListener('click', cargarDashboard);
+    document.addEventListener('DOMContentLoaded', cargarDashboard);
+</script>
+{% endblock %}

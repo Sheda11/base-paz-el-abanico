@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white py-3">
+            <h5 class="mb-0 fw-bold">Registro de Movimiento Contable - Sede: {{ request.user.sede.nombre|default:"Central" }}</h5>
+            <small>Saldo actual en bóveda/caja: <strong>${{ request.user.sede.saldo_actual|default:"0.00" }} USD</strong></small>
+        </div>
+        <div class="card-body p-4">
+            <form method="post" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Tipo de Movimiento</label>
+                        {{ form.tipo }}
+                        {{ form.tipo.errors }}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Categoría Contable</label>
+                        {{ form.categoria }}
+                        {{ form.categoria.errors }}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Monto (USD)</label>
+                        {{ form.monto }}
+                        {{ form.monto.errors }}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">N° de Comprobante / Referencia</label>
+                        {{ form.numero_comprobante }}
+                        {{ form.numero_comprobante.errors }}
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Descripción</label>
+                        {{ form.descripcion }}
+                        {{ form.descripcion.errors }}
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Comprobante Digital (PDF, PNG, JPG)</label>
+                        {{ form.comprobante_digital }}
+                        {{ form.comprobante_digital.errors }}
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex justify-content-end gap-2">
+                    <a href="{% url 'finanzas:lista_transacciones' %}" class="btn btn-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-success px-4">Registrar y Actualizar Saldo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

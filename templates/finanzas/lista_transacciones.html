@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid px-4 py-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-0">Libro Diario de Tesorería</h3>
+            <p class="text-muted mb-0">Historial de ingresos y egresos registrados</p>
+        </div>
+        <a href="{% url 'finanzas:registrar_transaccion' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>Nuevo Movimiento
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Sede</th>
+                            <th>Tipo</th>
+                            <th>Categoría</th>
+                            <th>Comprobante</th>
+                            <th>Descripción</th>
+                            <th>Monto (USD)</th>
+                            <th>Registrado Por</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tx in transacciones %}
+                            <tr>
+                                <td>{{ tx.fecha_transaccion }}</td>
+                                <td><span class="badge bg-secondary">{{ tx.sede.nombre }}</span></td>
+                                <td>
+                                    {% if tx.tipo == 'INGRESO' %}
+                                        <span class="badge bg-success">INGRESO</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">EGRESO</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ tx.categoria.nombre }}</td>
+                                <td><code>{{ tx.numero_comprobante }}</code></td>
+                                <td>{{ tx.descripcion }}</td>
+                                <td class="fw-bold {% if tx.tipo == 'INGRESO' %}text-success{% else %}text-danger{% endif %}">
+                                    {% if tx.tipo == 'INGRESO' %}+{% else %}-{% endif %}${{ tx.monto }}
+                                </td>
+                                <td class="small text-muted">{{ tx.registrado_por.username }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="8" class="text-center py-4 text-muted">
+                                    No hay transacciones registradas en este período.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

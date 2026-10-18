@@ -1,0 +1,21 @@
+# ==============================================================================
+# Dependencias Principales del Sistema
+# Proyecto Socio-Tecnológico: Gran Base de Paz "El Abanico"
+# ==============================================================================
+
+# Framework Web y APIs
+Django>=5.0,<6.2
+djangorestframework>=3.15.0
+
+# Base de Datos (PostgreSQL)
+psycopg2-binary>=2.9.9
+psycopg[binary]>=3.1.18
+
+# Tareas Asíncronas y Planificación
+celery[redis]>=5.4.0
+redis>=5.0.3
+
+# Variables de Entorno y Servidor de Producción
+python-dotenv>=1.0.1
+gunicorn>=22.0.0
+requests>=2.31.0

@@ -1,0 +1,50 @@
+# ==============================================================================
+# Git Ignore - Gran Base de Paz "El Abanico"
+# ==============================================================================
+
+# Entornos Virtuales
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Variables de entorno y secretos sensibles
+.env
+.env.local
+.env.*.local
+*.env
+
+# Base de datos local de desarrollo
+*.sqlite3
+db.sqlite3-journal
+
+# Byte-code / Caché de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Archivos de medios subidos por usuarios (comprobantes de prueba)
+media/
+mediafiles/
+
+# Archivos estáticos recolectados
+staticfiles/
+
+# Logs del sistema y Celery
+*.log
+celerybeat-schedule
+celerybeat.pid
+
+# IDEs y Editores
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+Thumbs.db
+
+# Docker (si se generan archivos temporales)
+.docker/

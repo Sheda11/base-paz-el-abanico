@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow border-0 rounded-3">
+                <div class="card-header bg-dark text-white text-center py-4">
+                    <i class="bi bi-shield-lock-fill fs-1 text-warning"></i>
+                    <h4 class="fw-bold mt-2 mb-0">Gran Base de Paz "El Abanico"</h4>
+                    <small class="text-white-50">Acceso Seguro al Sistema Financiero y Auditoría</small>
+                </div>
+                <div class="card-body p-4">
+                    {% if form.errors %}
+                        <div class="alert alert-danger py-2">
+                            <small><i class="bi bi-exclamation-triangle-fill me-1"></i>Credenciales incorrectas o usuario inactivo.</small>
+                        </div>
+                    {% endif %}
+
+                    <form method="post" action="{% url 'login' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ next|default:'/' }}">
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Usuario</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                <input type="text" name="username" class="form-control" placeholder="Ingrese su usuario" required autofocus>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Contraseña</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-key"></i></span>
+                                <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
+                            <i class="bi bi-box-arrow-in-right me-1"></i>Iniciar Sesión
+                        </button>
+                    </form>
+                </div>
+                <div class="card-footer bg-light text-center py-3">
+                    <small class="text-muted">
+                        <i class="bi bi-shield-check text-success me-1"></i>Cada acceso registra dirección IP y estampa temporal por auditoría.
+                    </small>
+                </div>
+            </div>
+            
+            <div class="alert alert-info mt-3 py-2 text-center small">
+                <strong>Usuarios de demostración disponibles:</strong><br>
+                Director: <code>director</code> / <code>admin</code><br>
+                Cajero: <code>cajero_matriz</code> / <code>password</code>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

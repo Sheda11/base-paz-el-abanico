@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid px-4 py-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-0">Órdenes de Pago y Compras</h3>
+            <p class="text-muted mb-0">Control del workflow de aprobación por umbrales</p>
+        </div>
+        <a href="{% url 'finanzas:crear_orden_pago' %}" class="btn btn-warning text-dark fw-semibold">
+            <i class="bi bi-file-earmark-plus me-1"></i>Solicitar Orden de Pago
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Sede</th>
+                            <th>Beneficiario</th>
+                            <th>Concepto</th>
+                            <th>Monto (USD)</th>
+                            <th>Estatus</th>
+                            <th>Solicitante</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for orden in ordenes %}
+                            <tr>
+                                <td><small class="text-muted">{{ orden.id|stringformat:".8s" }}...</small></td>
+                                <td>{{ orden.sede.nombre }}</td>
+                                <td class="fw-semibold">{{ orden.beneficiario }}</td>
+                                <td>{{ orden.concepto }}</td>
+                                <td class="fw-bold text-dark">${{ orden.monto }}</td>
+                                <td>
+                                    {% if orden.estado == 'APROBADA' %}
+                                        <span class="badge bg-success">Aprobada</span>
+                                    {% elif orden.estado == 'RECHAZADA' %}
+                                        <span class="badge bg-danger">Rechazada</span>
+                                    {% elif orden.estado == 'PEND_DIRECTOR' %}
+                                        <span class="badge bg-warning text-dark">Escalada al Director</span>
+                                    {% else %}
+                                        <span class="badge bg-info text-dark">Revisión Supervisor</span>
+                                    {% endif %}
+                                </td>
+                                <td><small class="text-muted">{{ orden.solicitado_por.username }}</small></td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center py-4 text-muted">
+                                    No hay órdenes de pago registradas.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
